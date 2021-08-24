@@ -1,0 +1,155 @@
+Here is what doesn't work in MS SQL from MySQL:
+-- The ORDER BY clause is invalid in views
+-- count(BSC.Cus_ID) - BSC.Cus_ID doesn't go to the column name, have to specify the column name AS 'Count'
+-- In MS SQL SERVER, with CROSS JOIN instead of ON has to use WHERE
+-- IN MS SQL SERVER can not use double quotes, only single quotes
+-- NATURAL JOIN doesn't work in MS SQL SERVER
+-- select sum(Cost_Con), min(Cost_Con), max(Cost_Con) doesn't work by itself, need to specify each column names
+-- in MS SQL, cannot use natural join
+
+Here is doesn't work in My SQL from MS SQL:
+-- in My SQL, comment need space between dash and letter
+-- in My SQL, need semicolon at the end of statement
+-- in My SQL, the name of view table need write together or seperate by low dash , it don't need [ ] 
+-- in My SQL, cannot use full join
+
+Here is 10 queries from Kostiantyn Volkov (MS SQL Server Expert)
+
+-- 1. UPDATE Employee Supervisor for Employee_id 10001 to 10002
+UPDATE Employee
+SET Supervisor_Emp_ID = '10002'
+WHERE Employee.Emp_ID = '10001';
+
+-- 2. company profits
+SELECT SUM(Contracts.Cost_Con) AS 'Total Sales', Business.Name_Bu AS 'Business Name'
+FROM Contracts
+JOIN Business
+ON Contracts.Bu_ID = Business.Bu_ID
+GROUP BY Business.Name_Bu;
+
+-- 3. list employees with their phone number
+SELECT *
+FROM Employee
+CROSS JOIN Employee_phone
+WHERE Employee.Emp_ID = Employee_phone.Emp_ID;
+
+-- 4. Delete contract placed the longest time ago)
+DELETE FROM Contracts 
+ORDER BY Date_Con
+LIMIT 1;
+
+SELECT * FROM Contracts;
+
+
+-- 5. list an employee id and employee name with maximum amount of sales
+-- create view with employee id and corresponding sales summary
+-- use this view to find employee with MAX total sales
+CREATE VIEW totalsum AS
+SELECT SUM(Cost_Con) AS 'SoldSum', Contracts.Emp_ID
+	FROM Contracts
+	JOIN Employee
+	ON Employee.Emp_ID = Contracts.Emp_ID
+	GROUP BY Contracts.Emp_ID;
+
+
+SELECT totalsum.Emp_ID, Name_Emp, Business.Name_Bu, (SELECT MAX(SoldSum) FROM totalsum) AS 'Total Sales'
+FROM totalsum
+JOIN Employee
+ON totalsum.Emp_ID = Employee.Emp_ID
+JOIN Employee_workFor_Business
+ON Employee.Emp_ID = Employee_workFor_Business.Emp_ID
+JOIN Business
+ON Business.Bu_ID = Employee_workFor_Business.Bu_ID
+	WHERE totalsum.SoldSum = (
+		SELECT MAX(SoldSum)
+		FROM totalsum
+);
+
+-- 6. join between Business table & customer_reviews table -> retrieve all reviews of the business
+SELECT Business.Bu_ID, Business.Name_Bu, Customers_reviews.Cus_ID, Customers_reviews.Date_Time, 
+Customers_reviews.Image, Customers_reviews.Title, Customers_reviews.Comments, Customers_reviews.Score 
+FROM Business
+LEFT JOIN Customers_reviews 
+ON Business.Bu_ID = Customers_reviews.Bu_ID;
+
+-- 7. find DOB of oldest customer and youngest customer
+SELECT  MIN(DoB_Cus) AS 'Oldest customer', MAX(DoB_Cus) AS 'Youngest customer'
+FROM Customers; 
+
+-- 8. find how many customers are from Canada
+SELECT COUNT(Customers.Cus_ID) AS 'Number of customers from Canada'
+FROM Customers
+INNER JOIN Customers_Address
+ON Customers.Cus_ID = Customers_Address.Cus_ID
+WHERE Customers_Address.Country_Cus = 'Canada';
+
+-- 9. find customer who has birthday in march
+UPDATE Customers
+SET DoB_Cus = '1990-03-18'
+WHERE Cus_ID = '400008';
+
+SELECT * FROM Customers;
+
+SELECT *
+FROM Customers
+WHERE DoB_Cus LIKE '%-03-%';
+
+
+-- 10. Calculate customers age
+SELECT Name_Cus, DoB_Cus, timestampdiff(YEAR, DoB_Cus, curdate()) AS Age
+FROM Customers;
+
+Here is 10 queries from Tuyet Khang Truong (MySQL Expert)
+
+-- 1. retrieve Cus_ID, Name_Cus, comment, Score, Bu_ID (no matter they review or not)
+select Cus.Cus_ID, Cus.Name_Cus, Review.comments, Review.Score, Review.Bu_ID
+from Customers_reviews Review right join Customers Cus on  review.Cus_ID=Cus.Cus_ID;
+
+-- 2. create view table that retrieve Bu_ID, Name_Bu, # of customer in those Business
+create view numberOfCustomerInTheBusiness as
+select Bu.Bu_ID,Bu.Name_Bu, count(BSC.Cus_ID)
+from Business Bu inner join Business_Serves_Customers BSC on Bu.Bu_ID = BSC.Bu_ID
+group by Bu.Bu_ID,Bu.Name_Bu
+order by count(BSC.Cus_ID) DESC;
+
+-- 3. retrieve Bu_ID, Name_Bu, # of employee in those Business
+select Bu.Bu_ID,Bu.Name_Bu, count(EWB.Emp_ID)
+from Business Bu inner join Employee_Workfor_Business EWB on Bu.Bu_ID = EWB.Bu_ID
+group by Bu.Bu_ID,Bu.Name_Bu;
+
+-- 4. retrieve all contracts of Business name "Business 2"
+select Co1.Cont_ID, Co1.Date_Con, Co1.Cost_Con, Co1.Location_Con, Bu.Bu_ID
+from contracts Co1 join Business Bu on Bu.Bu_ID=Co1.Bu_ID
+where Bu.Name_Bu= "Business 2";
+
+-- 5. retrieve all services (no matter if it has contract or not) and contracts of them 
+select S.Ser_ID, S.Name_Ser, S.Desc_Ser, S.Fee_Ser, S.Unit_Ser, 
+Co1.Cont_ID, Co1.Date_Con, Co1.Cost_Con, Co1.Location_Con
+from Services S 
+left join (Services_Connect_Contracts SCC join contracts Co1 on SCC.Cont_ID= Co1.Cont_ID) 
+on S.Ser_ID=SCC.Ser_ID;
+
+-- 6. retrieve the distinct city of customer and business
+select City_Cus, State_Cus from Customers_address
+union
+select City_Bu, State_Bu from Business;
+
+-- 7. retrieve # of services that signed contracts
+select S.Ser_ID, S.Name_Ser,S.Desc_Ser,S.Fee_Ser, count(SCC.Cont_ID) As "No. of contracts"
+from Services S cross join Services_Connect_Contracts SCC on S.Ser_ID=SCC.Ser_ID
+group by S.Ser_ID, S.Name_Ser,S.Desc_Ser,S.Fee_Ser
+order by count(SCC.Cont_ID) DESC;
+
+-- 8. retrieve all information of business (include business's phone) 
+select *
+from Business natural join business_phone;
+
+-- 9. retrieve an employee that don't have any contracts
+select E.Emp_ID, E.Name_Emp, E.Supervisor_Emp_ID
+from Employee E left join Contracts Co1 on E.Emp_ID=Co1.Emp_ID
+where Co1.Emp_ID is null;
+
+-- 10. retrieve ser_ID, Name_ser of services whose fee is below the average fee of all services
+select ser_ID, Name_ser, Fee_ser
+from services
+where Fee_ser < (select avg(Fee_ser) from services);
