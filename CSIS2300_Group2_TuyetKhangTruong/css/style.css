@@ -1,0 +1,33 @@
+﻿body {
+	background-color: rgb(255, 212, 187);
+}
+ul li {
+	margin: 10px 0;
+	list-style: none;
+}
+label {
+	display: inline-block;
+	width: 130px;
+	margin-bottom: 10px;
+}
+a {
+	display: inline-block;
+	padding: 12px 20px;
+	background: rgb(0, 0, 3);
+	color: white;
+	text-decoration: none;
+	margin: 5px 0;
+}
+a:hover {
+	text-decoration: underline;
+}
+table,
+td,
+th {
+	border: 1px solid rgb(253, 249, 249);
+	border-collapse: collapse;
+	padding: 5px 10px;
+}
+table {
+	margin: 15px;
+}
