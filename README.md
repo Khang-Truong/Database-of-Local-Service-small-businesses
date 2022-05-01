@@ -7,4 +7,4 @@
 
 
 # How to run it
-- Install WampServer(https://www.wampserver.com/en/) + 
+- Install [WampServer](https://www.wampserver.com/en/) + 
