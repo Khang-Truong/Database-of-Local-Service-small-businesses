@@ -1,7 +1,7 @@
 # Database_of_Local_Service_small_businesses
-- This is a team project in Database class. 
+- This is a team project in the Database course. 
 - We need to construct database for small business. 
-- Then create an admin page to control the database like create table, add new data, delete, update data in database 
+- Then create an admin page to control the database like creating tables, adding new data, deleting, updating data in database 
 
 # Some Pictures About The Project 
 ![home_page](https://user-images.githubusercontent.com/62549740/166129099-4ffff099-0b5d-49ec-bff5-06f025248f9c.jpeg)
